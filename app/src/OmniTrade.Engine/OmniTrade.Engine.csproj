@@ -5,6 +5,10 @@
     <ProjectReference Include="..\OmniTrade.Brokers.Alpaca\OmniTrade.Brokers.Alpaca.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Contracts\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
