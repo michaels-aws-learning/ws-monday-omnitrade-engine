@@ -1,1 +1,1 @@
-# news-broker
+# ws-streaming-broker
