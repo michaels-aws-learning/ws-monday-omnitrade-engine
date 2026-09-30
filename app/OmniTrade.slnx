@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OmniTrade.Brokers.Alpaca/OmniTrade.Brokers.Alpaca.csproj" />
+    <Project Path="src/OmniTrade.Domain/OmniTrade.Domain.csproj" />
+    <Project Path="src/OmniTrade.Engine/OmniTrade.Engine.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OmniTrade.Domain.Tests/OmniTrade.Domain.Tests.csproj" />
+  </Folder>
+</Solution>
