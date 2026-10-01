@@ -42,21 +42,19 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+
+        # Required so GitHub can issue an OIDC token that AWS will trust
+    permissions:
+      id-token: write
+      contents: read
+
     env:
+      ENV_NAME: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
       AWS_REGION: us-east-1
-      S3_BUCKET_NAME: ${{ github.ref == 'refs/heads/main' && 'mallient-verify-ui-bucket-prod' || 'mallient-verify-ui-bucket-dev' }}
-      AWS_ACCOUNT_ID: ${{ github.ref == 'refs/heads/development' && secrets.DEV_AWS_ACCOUNT_ID || secrets.PROD_AWS_ACCOUNT_ID }}
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      # --- Download infrastructure build artifacts ---
-      - name: Download Infra Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: infra-build
-          path: infra/src/
 
       - name: Show OIDC claims
         run: |
@@ -71,6 +69,20 @@ jobs:
           role-session-name: github-deploy-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
           retry-max-attempts: 3
+
+          # --- Download infrastructure build artifacts ---
+      - name: Download Infra Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: infra-build
+          path: infra/src/
+
+        # --- Download published artifacts ---
+      - name: Download Published Artifacts
+        uses: actions/download-artifact@v4
+        with:
+            name: published-artifacts
+            path: app/OmniTrade/bin/Release/net10.0/publish/
 
       # --- Install CDK and Deploy ---
       - name: Install AWS CDK
