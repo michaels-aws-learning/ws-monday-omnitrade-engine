@@ -10,34 +10,30 @@ namespace Infra
         public static void Main(string[] args)
         {
             var app = new App();
-            new InfraStack(app, "InfraStack", new StackProps
+
+            string environmentInput = (string)app.Node.TryGetContext("env") ?? "development";
+            // Normalize environment name
+            string env = environmentInput.ToLower() switch
             {
-                // If you don't specify 'env', this stack will be environment-agnostic.
-                // Account/Region-dependent features and context lookups will not work,
-                // but a single synthesized template can be deployed anywhere.
+                "production" => "prod",
+                "development" => "dev",
+                "testing" => "test",
+                _ => environmentInput.ToLower() // fallback to original if unrecognized
+            };
 
-                // Uncomment the next block to specialize this stack for the AWS Account
-                // and Region that are implied by the current CLI configuration.
-                /*
-                Env = new Amazon.CDK.Environment
-                {
-                    Account = System.Environment.GetEnvironmentVariable("CDK_DEFAULT_ACCOUNT"),
-                    Region = System.Environment.GetEnvironmentVariable("CDK_DEFAULT_REGION"),
-                }
-                */
+            Console.WriteLine($"Deploying to Environment: {env}");
 
-                // Uncomment the next block if you know exactly what Account and Region you
-                // want to deploy the stack to.
-                /*
-                Env = new Amazon.CDK.Environment
-                {
-                    Account = "123456789012",
-                    Region = "us-east-1",
-                }
-                */
+            string accountId = (string)app.Node.TryGetContext("accountId");
+            Console.WriteLine($"AccountID: {accountId}");
 
-                // For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
+            new ECSStack(app, $"ECSStack-{env}", env, new EcsStackProps
+            {
+                Env = new Amazon.CDK.Environment { Account = accountId, Region = "us-east-1" },
+                HostedZoneName = "wsmonday.com",
+                ApiDomainName = "api-dev.wsmonday.com",
+                BlotterOrigin = "https://app-dev.wsmonday.com"
             });
+
             app.Synth();
         }
     }
