@@ -93,7 +93,7 @@ jobs:
         run: |
           cd infra/
           cdk deploy --all --require-approval never --no-notices \
-          --context accountId=${{ 'deprecated' }} \
+          --context accountId=${{ env.AWS_ACCOUNT_ID }} \
           --context env=${{ env.ENV_NAME }} \
           --context authority=${{ github.ref == 'refs/heads/main' && '' || '' }} \
           --context audience=${{ github.ref == 'refs/heads/main' && '' || '' }} \
