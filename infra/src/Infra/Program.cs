@@ -31,7 +31,8 @@ namespace Infra
                 Env = new Amazon.CDK.Environment { Account = accountId, Region = "us-east-1" },
                 HostedZoneName = "wsmonday.com",
                 ApiDomainName = "api-dev.wsmonday.com",
-                BlotterOrigin = "https://app-dev.wsmonday.com"
+                BlotterOrigin = "https://app-dev.wsmonday.com",
+                DockerContextPath = "../app"
             });
 
             app.Synth();
