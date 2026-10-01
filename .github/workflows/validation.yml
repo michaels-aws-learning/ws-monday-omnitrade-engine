@@ -1,0 +1,92 @@
+name: Validate Infra and .NET App Build
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'bug/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '10.x'
+
+      # --- Infra (CDK) Build ---
+      - name: Restore & Build Infra
+        run: |
+          dotnet restore infra/src/
+          dotnet build infra/src/ --configuration Release --no-restore
+
+      # --- Application Build ---
+      - name: Restore & Build .NET Solution in /app
+        id: build-app
+        run: |
+          SLN=$(find app -maxdepth 1 -name '*.slnx' -print -quit)
+          if [ -z "$SLN" ]; then
+            echo "No .slnx found in /app."
+            exit 1
+          fi
+          echo "Building solution: $SLN"
+          dotnet restore "$SLN"
+          dotnet build "$SLN" --configuration Release --no-restore
+
+      # --- Install ReportGenerator ---
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+
+      # --- Run Unit Tests with Coverage ---
+      - name: Run .NET Unit Tests with Coverage
+        run: |
+          echo "Discovering test projects..."
+          TEST_PROJECTS=$(find . -maxdepth 5 -name "*Tests.csproj")
+
+          if [ -z "$TEST_PROJECTS" ]; then
+            echo "No test projects found. Skipping tests."
+            exit 0
+          fi
+
+          mkdir -p TestResults
+
+          for proj in $TEST_PROJECTS; do
+            echo "Running tests in $proj..."
+            dotnet test "$proj" \
+              --configuration Release \
+              --collect "XPlat Code Coverage" \
+              --logger "trx;LogFileName=$(basename $proj).trx" \
+              --results-directory TestResults
+          done
+
+
+    #   # --- Generate Coverage Report ---
+    #   - name: Generate Code Coverage Report
+    #     run: |
+    #       echo "Generating coverage report..."
+    #       reportgenerator \
+    #         -reports:"TestResults/**/coverage.cobertura.xml" \
+    #         -targetdir:"coverage-report" \
+    #         -reporttypes:Html
+
+    #   # --- Upload Test Results (even if failed) ---
+    #   - name: Upload Test Results
+    #     if: always()
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: dotnet-test-results
+    #       path: ./TestResults
+
+    #   # --- Upload Coverage Report ---
+    #   - name: Upload Coverage Report
+    #     if: always()
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: coverage-report
+    #       path: ./coverage-report
