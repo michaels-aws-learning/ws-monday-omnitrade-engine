@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="OmniTrade.ApiHandler/OmniTrade.ApiHandler.csproj" Id="7994ec8c-cc9d-4962-a616-60b11c384440" />
+    <Project Path="OmniTrade.CacheHandler/OmniTrade.CacheHandler.csproj" Id="b443f216-e24c-4bb0-9cf4-468257074e52" />
+    <Project Path="OmniTrade.DataContext/OmniTrade.DataContext.csproj" Id="8a6afb95-1e3a-44c2-944f-dfa1b1a19d9f" />
     <Project Path="src/OmniTrade.Brokers.Alpaca/OmniTrade.Brokers.Alpaca.csproj" />
     <Project Path="src/OmniTrade.Domain/OmniTrade.Domain.csproj" />
     <Project Path="src/OmniTrade.Engine/OmniTrade.Engine.csproj" />

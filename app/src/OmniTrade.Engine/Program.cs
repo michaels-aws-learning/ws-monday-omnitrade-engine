@@ -13,6 +13,8 @@ builder.Logging.AddJsonConsole();
 
 // Config comes from appsettings, then environment variables (Alpaca__KeyId, Alpaca__SecretKey, ...)
 builder.Services.Configure<AlpacaOptions>(builder.Configuration.GetSection("Alpaca"));
+// register Alpaca broker services and HTTP API handlers
+builder.Services.AddAlpacaBroker();
 
 builder.Services.AddSingleton<IBrokerAdapter, AlpacaBrokerAdapter>();
 
@@ -20,6 +22,14 @@ builder.Services.AddSignalR();
 
 builder.Services.AddHealthChecks();
 
+// Order manager and supporting services
+builder.Services.AddSingleton<IOrderBook, OmniTrade.Domain.OrderBook>();
+builder.Services.AddSingleton<IEventStore, OmniTrade.Domain.InMemoryEventStore>();
+builder.Services.AddSingleton<OmniTrade.Domain.Effects.IEffectsExecutor, OmniTrade.Engine.Services.NoopEffectsExecutor>();
+builder.Services.AddSingleton<OmniTrade.Domain.Events.IEventPublisher, OmniTrade.Engine.Services.NoopEventPublisher>();
+builder.Services.AddHostedService<OmniTrade.Engine.Services.OrderManager>();
+
+// existing Engine worker keeps broker connection and lifecycle management
 builder.Services.AddHostedService<EngineWorker>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>

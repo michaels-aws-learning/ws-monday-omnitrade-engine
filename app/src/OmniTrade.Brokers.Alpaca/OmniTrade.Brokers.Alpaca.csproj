@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OmniTrade.Domain\OmniTrade.Domain.csproj" />
+    <ProjectReference Include="..\..\OmniTrade.ApiHandler\OmniTrade.ApiHandler.csproj" />
   </ItemGroup>
 
   <ItemGroup>

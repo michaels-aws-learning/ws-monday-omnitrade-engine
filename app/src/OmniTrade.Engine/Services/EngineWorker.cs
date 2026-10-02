@@ -5,7 +5,7 @@ namespace OmniTrade.Engine.Services;
 /// <summary>
 /// Long-running engine loop. Owns the broker connection for the life of the process.
 /// </summary>
-public sealed class EngineWorker(IBrokerAdapter broker, ILogger<EngineWorker> logger) : BackgroundService
+public sealed class EngineWorker(IBrokerAdapter broker, ILogger<EngineWorker> logger, OrderManager orderManager) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -13,7 +13,10 @@ public sealed class EngineWorker(IBrokerAdapter broker, ILogger<EngineWorker> lo
 
         try
         {
+            // Start broker connection
             await broker.ConnectAsync(stoppingToken);
+
+            // OrderManager is hosted as a service and will process commands independently.
             await Task.Delay(Timeout.Infinite, stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
